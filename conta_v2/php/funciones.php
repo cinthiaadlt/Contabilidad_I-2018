@@ -229,4 +229,83 @@ function asientos($conexion, $transaccion) {
 			return 0;
 		}
 	}
+
+	function asientos_PDF($conexion, $transaccion) {
+
+	$sql = "SELECT id, DATE_FORMAT(fecha,'%d-%m-%Y')as fecha, cuenta, concepto, debe, haber FROM registro WHERE transaccion = $transaccion ORDER BY fecha ASC" ;
+	$ex_query = $conexion->query($sql);
+	if($ex_query->num_rows==0){
+		return 0;
+	}
+	  $content .=' 
+		<div>
+		<h4>
+		<span class="label label-primary">
+			Ficha N°: '.$transaccion.'
+		</span> &nbsp;
+		</h4>
+		<br/>
+		<div>
+		<table class="table table-bordered table-condensed table-hover">
+		<thead>
+		<tr>
+		<th width="50" class="text-center">ID</th>
+		<th width="110" class="text-center">Fecha</th>
+		<th width="80" class="text-center">Cuenta</th>
+		<th width="500" class="text-center">Descripción</th>
+		<th width="100" class="text-center">Debe</th>
+		<th width="100" class="text-center">Haber</th>
+		<th width="100" class="text-center">Diferencia</th>
+		</tr>
+		</thead>
+		<tbody>
+		';
+	while ($regs = $ex_query->fetch_assoc()) {
+		$id=$regs["id"];
+	$content .=' 
+		<tr>
+		<td>'.$regs["id"].'</td>";
+		<td>'.$regs['fecha'].'</td>
+		<td>'.$regs['cuenta'].'</td>
+		<td>utf8_encode('.$regs['concepto'].')</td>
+		<td align="right">'.$regs['debe'].'</td>
+		<td align="right">'.$regs['haber'].'</td>
+		<td></td>
+		</tr>
+		';
+	}
+	
+	$sql = "SELECT SUM(debe) as sumadebe, SUM(haber) AS sumahaber FROM registro WHERE transaccion=$transaccion";
+	$ex_query = $conexion->query($sql);
+	while($regs = $ex_query->fetch_assoc()){
+		$dif = $regs["sumadebe"]-$regs["sumahaber"];
+		$content .=' 
+		<tr>
+		<td colspan="4" class="text-right">SUMAS</td>
+		<td align="right">$ '.number_format($regs['sumadebe'], 2).'</td>
+		<td align="right">$ '.number_format($regs['sumahaber'], 2).'</td>
+		';
+		if($dif!=0){
+			$content .='
+			<td class="danger "align="right"><strong>$ '.number_format($dif, 2).'</strong></td>
+			';
+		} else{
+			$content .='
+			<td></td>
+			';
+		}
+
+		$content .='</tr>';
+
+		}
+		$content .='
+		</tbody>
+		</table>
+		</div>
+		</div>	
+		';
+
+		return 1;
+	}
+
 ?>
