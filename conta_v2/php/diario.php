@@ -1,24 +1,97 @@
 <?php
-/*~ Archivo diario.php
-.---------------------------------------------------------------------------.
-|    Software: CAS - Computerized Accountancy System                        |
-|     Versión: 1.0                                                          |
-|   Lenguajes: PHP, HTML, CSS3 y Javascript                                 |
-| ------------------------------------------------------------------------- |
-|   Autores: Ricardo Vigil (alexcontreras@outlook.com)                      |
-|          : Vanessa Campos                                                 |
-|          : Ingrid Aguilar                                                 |
-|          : Jhosseline Rodriguez                                           |
-| Copyright (C) 2013, FIA-UES. Todos los derechos reservados.               |
-| ------------------------------------------------------------------------- |
-|                                                                           |
-| Este archivo es parte del sistema de contabilidad C.A.S para la cátedra   |
-| de Sistemas Contables de la Facultad de Ingeniería y Arquitectura de la   |
-| Universidad de El Salvador.                                               |
-|                                                                           |
-'---------------------------------------------------------------------------'
-*/
+if(!isset($conexion)){ include("conexion.php");}
+if(isset($_POST['create_pdf'])){
+   include("funciones.php"); 
+  include('../tcpdf/tcpdf.php');
+    
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('Contabilidad vicaria');
+    $pdf->SetTitle($_POST['reporte_name']);
+
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->SetMargins(20, 20, 20, false);
+    $pdf->SetAutoPageBreak(true, 20);
+    $pdf->SetFont('Helvetica', '', 10);
+    $pdf->addPage();
+    $content = '';
+     $content .= '
+      <div class="row">
+                <div class="col-lg-12">';
+
+        $sql = "SELECT * FROM registro";
+        $ejecutar_consulta = $conexion->query($sql);
+        if($ejecutar_consulta->num_rows!=0){
+            $sql = "SELECT DISTINCTROW(transaccion) AS transacciones FROM registro";
+            $ejecutar_consulta = $conexion->query($sql);
+                while($registro = $ejecutar_consulta->fetch_assoc()){
+                    asientos_PDF($conexion, $registro["transacciones"]);
+                }
+        $sql = "SELECT sum(debe) as sumadebe, sum(haber) as sumahaber from registro";
+        $ejecutar_consulta = $conexion->query($sql);
+
+                while($registro = $ejecutar_consulta->fetch_assoc()){
+                    $dif = $registro["sumadebe"]-$registro["sumahaber"];
+
+                $content.=' 
+                </tr>
+                <div>
+                <table class="table table-bordered table-condensed table-hover">
+                <tr>
+                <td width="730" class="text-right">
+                <strong>SUMAS TOTALES</strong>
+                </td>
+                <td width="90" align="right">
+                <strong>
+                $'.number_format($registro['sumadebe'],2).'
+                </strong>
+                </td>
+               <td width="90" align="right">
+               <strong>
+               $'.number_format($registro['sumahaber'], 2).'
+               </strong>
+               </td>
+                ';
+                
+                if($dif!=0){
+                    $content.='  
+                    <td width="90" class="danger" align="right">
+                    <strong>
+                    $'.number_format($dif, 2).'
+                    </strong>
+                    </td>';
+                } else{
+
+                    $content.='<td width="90"></td>';
+                }
+                $content.='  
+                </tr>
+                </table>
+                </div> ';
+            }
+        } else {
+            $sql = "CALL reiniciar_saldos()";
+            $ejecutar_consulta = $conexion->query($sql);
+            $content.='  
+            <div class="alert alert-info">
+            "No hay asientos."
+             </div>
+             ';
+        }
+
+         $content.='           
+                </div>
+            </div> 
+            ';
+
+    $pdf->writeHTMLCell(0, 0, '', '', $content, 0, 1, 0, true, '', true);
+    ob_end_clean();
+    $pdf->output('Reporte.pdf', 'I');
+}
 ?>
+
 <?php
 	include("funciones.php");
 	include("sesion.php");
@@ -81,7 +154,7 @@
         		<div class="row">
         			<div class="col-lg-12">
         				<?php
-        				if(!isset($conexion)){ include("conexion.php");}
+        				if(!isset($conexion)){include("conexion.php");}
         				$sql = "SELECT * FROM registro";
         				$ejecutar_consulta = $conexion->query($sql);
         				if($ejecutar_consulta->num_rows!=0){
@@ -124,7 +197,7 @@
         			</div>
         		</div>
                 <div class="col-md-12">
-                <form action="../reportes_pdf/diario_pdf.php" method="post">
+                <form method="post">
                     <input type="hidden" name="reporte_name" value="<?php echo $h1; ?>">
                     <input type="submit" name="create_pdf" class="btn btn-danger pull-right" value="Generar PDF">
                 </form>
