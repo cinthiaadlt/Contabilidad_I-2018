@@ -19,7 +19,7 @@
 '---------------------------------------------------------------------------'
 */
 ?>
-<?php 
+<?php
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
 		header("Location: salir.php");
@@ -54,10 +54,8 @@
         		<!-- Activos -->
         		<div class="row">
         			<div class="col-lg-12">
-        				<div class="page-header">
-        					<h3><span class="label label-primary">1. Activos</span></h3>
-        				</div>
-        				<?php 
+        				
+        				<?php
         					if(!isset($conexion)){
                                 include("conexion.php");
                             }
@@ -65,16 +63,15 @@
         								CONCAT_WS('. ', b.`codigo_grupo`, b.`nombre_grupo`) AS Grupo,
         								CONCAT_WS('. ', c.`codigo_subgrupo`, c.`nombre_subgrupo`) AS Subgrupo,
         								CONCAT_WS('. ', d.`codigo_cuenta`, d.`nombre_cuenta`) AS Cuenta
-        								FROM 
-        								clasificaciones a, 
-        								grupos b, 
-        								subgrupos c, 
-        								cuentas d 
+        								FROM
+        								clasificaciones a,
+        								grupos b,
+        								subgrupos c,
+        								cuentas d
         								WHERE
         								d.`subgrupo`=c.`codigo_subgrupo` AND
         								c.`grupo`=b.`codigo_grupo` AND
-        								b.`clasificacion`=a.`codigo_clasificacion` AND
-        								a.`codigo_clasificacion`=1";
+        								b.`clasificacion`=a.`codigo_clasificacion`";
 
         					$ejecutar_consulta = $conexion->query($consulta);
 
@@ -97,171 +94,18 @@
                                 echo "<td><a href='detalle-cuenta.php?cuenta=$codigo_cuenta'>".utf8_encode($registro["Cuenta"])."</a></td>";
                                 echo "</tr>";
                             }
-                            
+
                             echo "</tbody>";
                             echo "</table>";
                             echo "</div>";
         				?>
         			</div>
         		</div>
-
-        		<!-- Pasivos -->
-        		<div class="row">
-                    <div class="col-lg-12">
-                        <div class="page-header">
-                            <h3><span class="label label-success">2. Pasivos</span></h3>
-                        </div>
-                        <?php 
-                            $consulta = "SELECT d.codigo_cuenta as id,
-                                        CONCAT_WS('. ', b.`codigo_grupo`, b.`nombre_grupo`) AS Grupo,
-                                        CONCAT_WS('. ', c.`codigo_subgrupo`, c.`nombre_subgrupo`) AS Subgrupo,
-                                        CONCAT_WS('. ', d.`codigo_cuenta`, d.`nombre_cuenta`) AS Cuenta
-                                        FROM 
-                                        clasificaciones a, 
-                                        grupos b, 
-                                        subgrupos c, 
-                                        cuentas d 
-                                        WHERE
-                                        d.`subgrupo`=c.`codigo_subgrupo` AND
-                                        c.`grupo`=b.`codigo_grupo` AND
-                                        b.`clasificacion`=a.`codigo_clasificacion` AND
-                                        a.`codigo_clasificacion`=2";
-
-                            $ejecutar_consulta = $conexion->query($consulta);
-
-                            echo "<div>";
-                            echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-                            echo "<thead>";
-                            echo "<tr>";
-                            echo "<th width='150px' class='text-center'>Grupo</th>";
-                            echo "<th width='300px' class='text-center'>Subgrupo</th>";
-                            echo "<th class='text-center'>Cuenta</th>";
-                            echo "</tr>";
-                            echo "</thead>";
-                            echo "<tbody>";
-
-                            while($registro = $ejecutar_consulta->fetch_assoc()){
-                                $codigo_cuenta = $registro["id"];
-                                echo "<tr>";
-                                echo "<td>".utf8_encode($registro["Grupo"])."</td>";
-                                echo "<td>".utf8_encode($registro["Subgrupo"])."</td>";
-                                echo "<td><a href='detalle-cuenta.php?cuenta=$codigo_cuenta'>".utf8_encode($registro["Cuenta"])."</a></td>";
-                                echo "</tr>";
-                            }
-                            
-                            echo "</tbody>";
-                            echo "</table>";
-                            echo "</div>";
-                        ?>
-                    </div>
-                </div>
-
-        		<!-- Capital -->
-        		<div class="row">
-                    <div class="col-lg-12">
-                        <div class="page-header">
-                            <h3><span class="label label-warning">3. Capital</span></h3>
-                        </div>
-                        <?php 
-                            $consulta = "SELECT d.codigo_cuenta as id,
-                                        CONCAT_WS('. ', b.`codigo_grupo`, b.`nombre_grupo`) AS Grupo,
-                                        CONCAT_WS('. ', c.`codigo_subgrupo`, c.`nombre_subgrupo`) AS Subgrupo,
-                                        CONCAT_WS('. ', d.`codigo_cuenta`, d.`nombre_cuenta`) AS Cuenta
-                                        FROM 
-                                        clasificaciones a, 
-                                        grupos b, 
-                                        subgrupos c, 
-                                        cuentas d 
-                                        WHERE
-                                        d.`subgrupo`=c.`codigo_subgrupo` AND
-                                        c.`grupo`=b.`codigo_grupo` AND
-                                        b.`clasificacion`=a.`codigo_clasificacion` AND
-                                        a.`codigo_clasificacion`=3";
-
-                            $ejecutar_consulta = $conexion->query($consulta);
-
-                            echo "<div>";
-                            echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-                            echo "<thead>";
-                            echo "<tr>";
-                            echo "<th width='150px' class='text-center'>Grupo</th>";
-                            echo "<th width='300px' class='text-center'>Subgrupo</th>";
-                            echo "<th class='text-center'>Cuenta</th>";
-                            echo "</tr>";
-                            echo "</thead>";
-                            echo "<tbody>";
-
-                            while($registro = $ejecutar_consulta->fetch_assoc()){
-                                $codigo_cuenta = $registro["id"];
-                                echo "<tr>";
-                                echo "<td>".utf8_encode($registro["Grupo"])."</td>";
-                                echo "<td>".utf8_encode($registro["Subgrupo"])."</td>";
-                                echo "<td><a href='detalle-cuenta.php?cuenta=$codigo_cuenta'>".utf8_encode($registro["Cuenta"])."</a></td>";
-                                echo "</tr>";
-                            }
-                            
-                            echo "</tbody>";
-                            echo "</table>";
-                            echo "</div>";
-                        ?>
-                    </div>
-                </div>
-
-        		<!-- Resultados -->
-        		<div class="row">
-                    <div class="col-lg-12">
-                        <div class="page-header">
-                            <h3><span class="label label-danger">4. Resultados</span></h3>
-                        </div>
-                        <?php 
-                            $consulta = "SELECT d.codigo_cuenta as id,
-                                        CONCAT_WS('. ', b.`codigo_grupo`, b.`nombre_grupo`) AS Grupo,
-                                        CONCAT_WS('. ', c.`codigo_subgrupo`, c.`nombre_subgrupo`) AS Subgrupo,
-                                        CONCAT_WS('. ', d.`codigo_cuenta`, d.`nombre_cuenta`) AS Cuenta
-                                        FROM 
-                                        clasificaciones a, 
-                                        grupos b, 
-                                        subgrupos c, 
-                                        cuentas d 
-                                        WHERE
-                                        d.`subgrupo`=c.`codigo_subgrupo` AND
-                                        c.`grupo`=b.`codigo_grupo` AND
-                                        b.`clasificacion`=a.`codigo_clasificacion` AND
-                                        a.`codigo_clasificacion`=4";
-
-                            $ejecutar_consulta = $conexion->query($consulta);
-
-                            echo "<div>";
-                            echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-                            echo "<thead>";
-                            echo "<tr>";
-                            echo "<th width='150px' class='text-center'>Grupo</th>";
-                            echo "<th width='300px' class='text-center'>Subgrupo</th>";
-                            echo "<th class='text-center'>Cuenta</th>";
-                            echo "</tr>";
-                            echo "</thead>";
-                            echo "<tbody>";
-
-                            while($registro = $ejecutar_consulta->fetch_assoc()){
-                                $codigo_cuenta = $registro["id"];
-                                echo "<tr>";
-                                echo "<td>".utf8_encode($registro["Grupo"])."</td>";
-                                echo "<td>".utf8_encode($registro["Subgrupo"])."</td>";
-                                echo "<td><a href='detalle-cuenta.php?cuenta=$codigo_cuenta'>".utf8_encode($registro["Cuenta"])."</a></td>";
-                                echo "</tr>";
-                            }
-                            
-                            echo "</tbody>";
-                            echo "</table>";
-                            echo "</div>";
-                        ?>
-                    </div>
-                </div>
         	</div><!--/span-->
 
 			<!-- Barra lateral o sidebar -->
         	<?php include("sidebar.php"); ?>
-        	
+
         </div>
     </div>
 
