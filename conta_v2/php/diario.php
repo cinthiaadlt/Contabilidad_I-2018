@@ -20,7 +20,7 @@
 */
 ?>
 <?php
-	include("funciones.php"); 
+	include("funciones.php");
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
 		header("Location: salir.php");
@@ -50,7 +50,7 @@
 		<div class="row row-offcanvas row-offcanvas-right">
 			<div class="col-xs-12 col-sm-9">
 				<div class="page-header">
-                    <?php $h1 = "Libro Diario";  
+                    <?php $h1 = "Libro Diario";
                         echo '<h3>'.$h1.'</h3>'
                     ?>
         			<!--
@@ -68,7 +68,7 @@
                     </div>
                     <hr>
                     <div class="col-lg-12">
-                        <?php 
+                        <?php
                         if(isset($_GET["mensaje"])){
                             echo "<div class='alert alert-info alert-dismissable'>";
                             echo "<button type='button' class='close' data-dismiss='alert'>&times;</button>";
@@ -80,7 +80,7 @@
         		</div>
         		<div class="row">
         			<div class="col-lg-12">
-        				<?php 
+        				<?php
         				if(!isset($conexion)){ include("conexion.php");}
         				$sql = "SELECT * FROM registro";
         				$ejecutar_consulta = $conexion->query($sql);
@@ -119,21 +119,21 @@
         					echo "No hay asientos.";
         					echo "</div>";
         				}
-                      
+
         				?>
         			</div>
         		</div>
                 <div class="col-md-12">
-                <form method="post">
+                <form action="../reportes_pdf/diario_pdf.php" method="post">
                     <input type="hidden" name="reporte_name" value="<?php echo $h1; ?>">
-                    <input type="submit" name="create_pdf" class="btn btn-danger pull-right" value="Generar PDF" >
+                    <input type="submit" name="create_pdf" class="btn btn-danger pull-right" value="Generar PDF">
                 </form>
               </div>
         	</div><!--/span-->
-            
+
 			<!-- Barra lateral o sidebar -->
         	<?php include("sidebar.php"); ?>
-        	
+
         </div>
     </div>
 
@@ -146,43 +146,3 @@
 	<script src="../js/bootstrap.min.js"></script>
 </body>
 </html>
-
-
-<!--GENERAR PDF-->
-<?php
-if(!isset($conexion)){ include("conexion.php");}
-if(isset($_POST['create_pdf'])){
-    include('../tcpdf/tcpdf.php');
-    
-    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-    
-    $pdf->SetCreator(PDF_CREATOR);
-    $pdf->SetAuthor('Miguel Caro');
-    $pdf->SetTitle($_POST['reporte_name']);
-    
-    $pdf->setPrintHeader(false); 
-    $pdf->setPrintFooter(false);
-    $pdf->SetMargins(20, 20, 20, false); 
-    $pdf->SetAutoPageBreak(true, 20); 
-    $pdf->SetFont('Helvetica', '', 10);
-    $pdf->addPage();
-    $content = '';
-
-
-
-    $content .= '
-        <div class="row padding">
-            <div class="col-md-12" style="text-align:center;">
-                <span>Pdf Creator </span>By Miguel Angel
-            </div>
-        </div>
-        
-    ';
-
-    
-    $pdf->writeHTML($content, true, 0, true, 0);
-    $pdf->lastPage();
-    $pdf->output('Reporte.pdf', 'I');
-    
-}
-?>
