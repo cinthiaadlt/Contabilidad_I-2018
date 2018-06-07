@@ -19,7 +19,7 @@
 '---------------------------------------------------------------------------'
 */
 ?>
-<?php 
+<?php
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
 		header("Location: salir.php");
@@ -54,17 +54,13 @@
         		<!-- Activos -->
         		<div class="row">
         			<div class="col-lg-12">
-        				<div class="page-header">
-        					<h3><span class="label label-primary">1. Activos</span></h3>
-        				</div>
-        				<?php 
+        				<?php
         					if(!isset($conexion)){
         						include("conexion.php");
         					}
-        					$consulta = "SELECT 
+        					$consulta = "SELECT
         								codigo_subcuenta, nombre_subcuenta
-        								FROM subcuentas
-        								WHERE codigo_subcuenta LIKE '1%'";
+        								FROM subcuentas";
 
         					$ejecutar_consulta = $conexion->query($consulta);
 
@@ -85,7 +81,7 @@
 								echo "<td><a href='detalle-subcuenta.php?subcuenta=$codigo_subcuenta'>".utf8_encode($registro["nombre_subcuenta"])."</a></td>";
 								echo "</tr>";
 							}
-							
+
 							echo "</tbody>";
 							echo "</table>";
 							echo "</div>";
@@ -93,127 +89,11 @@
         			</div>
         		</div>
 
-        		<!-- Pasivos -->
-        		<div class="row">
-        			<div class="col-lg-12">
-        				<div class="page-header">
-        					<h3><span class="label label-success">2. Pasivos</span></h3>
-        				</div>
-        				<?php 
-        					$consulta = "SELECT 
-        								codigo_subcuenta, nombre_subcuenta
-        								FROM subcuentas
-        								WHERE codigo_subcuenta LIKE '2%'";
-
-        					$ejecutar_consulta = $conexion->query($consulta);
-
-        					echo "<div>";
-							echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-							echo "<thead>";
-							echo "<tr>";
-							echo "<th width='110px' class='text-center'>Subcuenta</th>";
-							echo "<th class='text-center'>Nombre</th>";
-							echo "</tr>";
-							echo "</thead>";
-							echo "<tbody>";
-
-							while($registro = $ejecutar_consulta->fetch_assoc()){
-								$codigo_subcuenta = $registro["codigo_subcuenta"];
-								echo "<tr>";
-								echo "<td class='text-right'><a href='detalle-subcuenta.php?subcuenta=$codigo_subcuenta'>".utf8_encode($registro["codigo_subcuenta"])."</a></td>";
-								echo "<td><a href='detalle-subcuenta.php?subcuenta=$codigo_subcuenta'>".utf8_encode($registro["nombre_subcuenta"])."</a></td>";
-								echo "</tr>";
-							}
-							
-							echo "</tbody>";
-							echo "</table>";
-							echo "</div>";
-        				?>
-        			</div>
-        		</div>
-
-        		<!-- Capital -->
-        		<div class="row">
-        			<div class="col-lg-12">
-        				<div class="page-header">
-        					<h3><span class="label label-warning">3. Capital</span></h3>
-        				</div>
-        				<?php 
-        					$consulta = "SELECT 
-        								codigo_subcuenta, nombre_subcuenta
-        								FROM subcuentas
-        								WHERE codigo_subcuenta LIKE '3%'";
-
-        					$ejecutar_consulta = $conexion->query($consulta);
-
-        					echo "<div>";
-							echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-							echo "<thead>";
-							echo "<tr>";
-							echo "<th width='110px' class='text-center'>Subcuenta</th>";
-							echo "<th class='text-center'>Nombre</th>";
-							echo "</tr>";
-							echo "</thead>";
-							echo "<tbody>";
-
-							while($registro = $ejecutar_consulta->fetch_assoc()){
-								$codigo_subcuenta = $registro["codigo_subcuenta"];
-								echo "<tr>";
-								echo "<td class='text-right'><a href='detalle-subcuenta.php?subcuenta=$codigo_subcuenta'>".utf8_encode($registro["codigo_subcuenta"])."</a></td>";
-								echo "<td><a href='detalle-subcuenta.php?subcuenta=$codigo_subcuenta'>".utf8_encode($registro["nombre_subcuenta"])."</a></td>";
-								echo "</tr>";
-							}
-							
-							echo "</tbody>";
-							echo "</table>";
-							echo "</div>";
-        				?>
-        			</div>
-        		</div>
-
-        		<!-- Resultados -->
-        		<div class="row">
-        			<div class="col-lg-12">
-        				<div class="page-header">
-        					<h3><span class="label label-danger">4. Resultados</span></h3>
-        				</div>
-        				<?php 
-        					$consulta = "SELECT 
-        								codigo_subcuenta, nombre_subcuenta
-        								FROM subcuentas
-        								WHERE codigo_subcuenta LIKE '4%'";
-
-        					$ejecutar_consulta = $conexion->query($consulta);
-
-        					echo "<div>";
-							echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-							echo "<thead>";
-							echo "<tr>";
-							echo "<th width='110px' class='text-center'>Subcuenta</th>";
-							echo "<th class='text-center'>Nombre</th>";
-							echo "</tr>";
-							echo "</thead>";
-							echo "<tbody>";
-
-							while($registro = $ejecutar_consulta->fetch_assoc()){
-								$codigo_subcuenta = $registro["codigo_subcuenta"];
-								echo "<tr>";
-								echo "<td class='text-right'><a href='detalle-subcuenta.php?subcuenta=$codigo_subcuenta'>".utf8_encode($registro["codigo_subcuenta"])."</a></td>";
-								echo "<td><a href='detalle-subcuenta.php?subcuenta=$codigo_subcuenta'>".utf8_encode($registro["nombre_subcuenta"])."</a></td>";
-								echo "</tr>";
-							}
-							
-							echo "</tbody>";
-							echo "</table>";
-							echo "</div>";
-        				?>
-        			</div>
-        		</div>
         	</div><!--/span-->
 
 			<!-- Barra lateral o sidebar -->
         	<?php include("sidebar.php"); ?>
-        	
+
         </div>
     </div>
 
