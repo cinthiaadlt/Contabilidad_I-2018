@@ -1,4 +1,5 @@
 <?php
+/*  prueba */
 if(!isset($conexion)){ include("conexion.php");}
 if(isset($_POST['create_pdf'])){
    include("funciones.php"); 
