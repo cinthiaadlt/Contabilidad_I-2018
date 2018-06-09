@@ -4,7 +4,7 @@ $sql = "SELECT DISTINCTROW(cuenta) cuentas FROM registro";
 $ejecutar_consulta = $conexion->query($sql);
 if(isset($_POST['create_pdf'])){
   include("funciones.php"); 
-  include('../reportes_pdf/tcpdf/tcpdf.php');
+  include('../tcpdf/tcpdf.php');
     
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
 
