@@ -1,24 +1,3 @@
-<?php
-/*~ Archivo balance-comprobación.php
-.---------------------------------------------------------------------------.
-|    Software: CAS - Computerized Accountancy System                        |
-|     Versión: 1.0                                                          |
-|   Lenguajes: PHP, HTML, CSS3 y Javascript                                 |
-| ------------------------------------------------------------------------- |
-|   Autores: Ricardo Vigil (alexcontreras@outlook.com)                      |
-|          : Vanessa Campos                                                 |
-|          : Ingrid Aguilar                                                 |
-|          : Jhosseline Rodriguez                                           |
-| Copyright (C) 2013, FIA-UES. Todos los derechos reservados.               |
-| ------------------------------------------------------------------------- |
-|                                                                           |
-| Este archivo es parte del sistema de contabilidad C.A.S para la cátedra   |
-| de Sistemas Contables de la Facultad de Ingeniería y Arquitectura de la   |
-| Universidad de El Salvador.                                               |
-|                                                                           |
-'---------------------------------------------------------------------------'
-*/
-?>
 <?php 
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
@@ -97,10 +76,17 @@
 								error_reporting(E_ALL ^ E_NOTICE);
 								if(!isset($conexion)){
 									include("conexion.php");
-									$sql = "SELECT * FROM cuentas";
+									/*consulata para obtenr totales segun subgrupo*/
+                                	$consulta = "SELECT DISTINCT(c.codigo_cuenta),c.subgrupo,SUM((c.saldo_debe)) sumdebe,SUM((c.saldo_haber)) sumhaber FROM cuentas c,subgrupos s WHERE c.subgrupo=s.codigo_subgrupo GROUP by c.subgrupo";
+                               		$consulta = $conexion->query($consulta);
+                               		
+                                    /*Suma segun subgurupos de cuentas*/
+                                while ($subg = $consulta->fetch_assoc()) {
+									$sql = "SELECT * FROM cuentas where subgrupo='".$subg["subgrupo"]."' ";
 									$ejecutar = $conexion->query($sql);
+									$deudor=0;
+									$acreedor=0;
 									while($regs = $ejecutar->fetch_assoc()){
-										/**/
 										echo "<tr>";
 										echo "<td>".utf8_encode($regs["codigo_cuenta"])." ".utf8_encode($regs["nombre_cuenta"])."</td>";
 										if($regs["saldo_debe"]==0){
@@ -149,6 +135,14 @@
 
 											echo "</tr>";
 									}
+									echo "<tr>";
+                                                echo "<td class='text-right' colspan='3'><strong>Sumas Totales:</strong></td>";
+                                              
+                                                echo "<td align='right'>".number_format($deudor,2)."</td>";
+                                                echo "<td align='right'>".number_format($acreedor,2)."</td>";
+                                                echo "</tr>";
+								}
+									/*Total de todas las cuentas*/ 
 									$sql = "SELECT SUM(saldo_debe) sumadebe, SUM(saldo_haber) sumahaber FROM cuentas";
 									$ejecutar = $conexion->query($sql);
 									echo "<tr>";
@@ -166,16 +160,25 @@
 											echo "<td class='danger'><strong>Totales:</strong> </td>";
 											echo "<td class='text-right danger'><strong>".number_format($reg["sumadebe"],2)."</strong></td>";
 											echo "<td class='text-right danger'><strong>".number_format($reg["sumahaber"],2)."</strong></td>";
-
-
+											if ($reg["sumadebe"]>=$reg["sumahaber"]) {
+												echo "<td class='text-right danger'>$ ".number_format($reg["sumadebe"]-$reg["sumahaber"], 2)."</td>";
+												echo "<td class='text-right danger'>$ ".number_format(0, 2)."</td>";
+											}
+											else{
+												echo "<td class='text-right danger'>$ ".number_format(0, 2)."</td>";
+												echo "<td class='text-right danger'>$ ".number_format($reg["sumahaber"]-$reg["sumadebe"], 2)."</td>";
+											}
+											
+                                            
 										} else {
 											echo "<td><strong>Totales:</strong> </td>";
 											echo "<td class='text-right'><strong>".number_format($reg["sumadebe"],2)."</strong></td>";
 											echo "<td class='text-right'><strong>".number_format($reg["sumahaber"],2)."</strong></td>";
+											echo "<td class='text-right danger'>$ ".number_format('0', 2)."</td>";
+                                            echo "<td class='text-right danger'>$ ".number_format('0', 2)."</td>";
 										}
 										
-											echo "<td class='text-right danger'>$ ".number_format($deudor, 2)."</td>";
-                                            echo "<td class='text-right danger'>$ ".number_format($acreedor, 2)."</td>";
+											
 									}
 									echo "</tr>";
 								}
