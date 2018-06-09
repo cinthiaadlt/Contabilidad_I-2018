@@ -34,9 +34,6 @@
         		<!-- Activos -->
         		<div class="row">
         			<div class="col-lg-12">
-        				<div class="page-header">
-        					<h3><span class="label label-primary">1. Activos</span></h3>
-        				</div>
         				<?php 
         					if(!isset($conexion)){
                                 include("conexion.php");
@@ -50,8 +47,7 @@
         								subgrupos c
         								WHERE
         								c.`grupo`=b.`codigo_grupo` AND
-        								b.`clasificacion`=a.`codigo_clasificacion` AND
-        								a.`codigo_clasificacion`=1";
+        								b.`clasificacion`=a.`codigo_clasificacion`";
 
         					$ejecutar_consulta = $conexion->query($consulta);
 
@@ -59,7 +55,7 @@
 							echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
                             echo "<thead>";
                             echo "<tr>";
-                           echo "<th width='150px' class='text-center'>Grupo</th>";
+                           echo "<th width='190px' class='text-center'>Grupo</th>";
                             echo "<th class='text-center'>Subgrupo</th>";
                             echo "</tr>";
                             echo "</thead>";
@@ -78,141 +74,6 @@
         				?>
         			</div>
         		</div>
-
-        		<!-- Pasivos -->
-        		<div class="row">
-                    <div class="col-lg-12">
-                        <div class="page-header">
-                            <h3><span class="label label-success">2. Pasivos</span></h3>
-                        </div>
-                        <?php 
-                            $consulta = "SELECT 
-                                        CONCAT_WS('. ', b.`codigo_grupo`, b.`nombre_grupo`) AS Grupo,
-                                        CONCAT_WS('. ', c.`codigo_subgrupo`, c.`nombre_subgrupo`) AS Subgrupo
-                                        FROM 
-                                        clasificaciones a, 
-                                        grupos b, 
-                                        subgrupos c
-                                        WHERE
-                                        c.`grupo`=b.`codigo_grupo` AND
-                                        b.`clasificacion`=a.`codigo_clasificacion` AND
-                                        a.`codigo_clasificacion`=3";
-
-                            $ejecutar_consulta = $conexion->query($consulta);
-
-                            echo "<div>";
-                            echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-                            echo "<thead>";
-                            echo "<tr>";
-                           echo "<th width='150px' class='text-center'>Grupo</th>";
-                            echo "<th class='text-center'>Subgrupo</th>";
-                            echo "</tr>";
-                            echo "</thead>";
-                            echo "<tbody>";
-
-                            while($registro = $ejecutar_consulta->fetch_assoc()){
-                                echo "<tr>";
-                                echo "<td>".utf8_encode($registro["Grupo"])."</td>";
-                                echo "<td>".utf8_encode($registro["Subgrupo"])."</td>";
-                                echo "</tr>";
-                            }
-                            
-                            echo "</tbody>";
-                            echo "</table>";
-                            echo "</div>";
-                        ?>
-                    </div>
-                </div>
-
-        		<!-- Capital -->
-        		<div class="row">
-                    <div class="col-lg-12">
-                        <div class="page-header">
-                            <h3><span class="label label-warning">3. Capital</span></h3>
-                        </div>
-                        <?php 
-                            $consulta = "SELECT 
-                                        CONCAT_WS('. ', b.`codigo_grupo`, b.`nombre_grupo`) AS Grupo,
-                                        CONCAT_WS('. ', c.`codigo_subgrupo`, c.`nombre_subgrupo`) AS Subgrupo
-                                        FROM 
-                                        clasificaciones a, 
-                                        grupos b, 
-                                        subgrupos c
-                                        WHERE
-                                        c.`grupo`=b.`codigo_grupo` AND
-                                        b.`clasificacion`=a.`codigo_clasificacion` AND
-                                        a.`codigo_clasificacion`=3";
-
-                            $ejecutar_consulta = $conexion->query($consulta);
-
-                            echo "<div>";
-                            echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-                            echo "<thead>";
-                            echo "<tr>";
-                           echo "<th width='150px' class='text-center'>Grupo</th>";
-                            echo "<th class='text-center'>Subgrupo</th>";
-                            echo "</tr>";
-                            echo "</thead>";
-                            echo "<tbody>";
-
-                            while($registro = $ejecutar_consulta->fetch_assoc()){
-                                echo "<tr>";
-                                echo "<td>".utf8_encode($registro["Grupo"])."</td>";
-                                echo "<td>".utf8_encode($registro["Subgrupo"])."</td>";
-                                echo "</tr>";
-                            }
-                            
-                            echo "</tbody>";
-                            echo "</table>";
-                            echo "</div>";
-                        ?>
-                    </div>
-                </div>
-
-        		<!-- Resultados -->
-        		<div class="row">
-                    <div class="col-lg-12">
-                        <div class="page-header">
-                            <h3><span class="label label-danger">4. Resultados</span></h3>
-                        </div>
-                        <?php 
-                            $consulta = "SELECT 
-                                        CONCAT_WS('. ', b.`codigo_grupo`, b.`nombre_grupo`) AS Grupo,
-                                        CONCAT_WS('. ', c.`codigo_subgrupo`, c.`nombre_subgrupo`) AS Subgrupo
-                                        FROM 
-                                        clasificaciones a, 
-                                        grupos b, 
-                                        subgrupos c 
-                                        WHERE
-                                        c.`grupo`=b.`codigo_grupo` AND
-                                        b.`clasificacion`=a.`codigo_clasificacion` AND
-                                        a.`codigo_clasificacion`=4";
-
-                            $ejecutar_consulta = $conexion->query($consulta);
-
-                            echo "<div>";
-                            echo "<table class='table table-hover table-bordered table-striped  table-condensed table-responsive text-left'>";
-                            echo "<thead>";
-                            echo "<tr>";
-                           echo "<th width='150px' class='text-center'>Grupo</th>";
-                            echo "<th class='text-center'>Subgrupo</th>";
-                            echo "</tr>";
-                            echo "</thead>";
-                            echo "<tbody>";
-
-                            while($registro = $ejecutar_consulta->fetch_assoc()){
-                                echo "<tr>";
-                                echo "<td>".utf8_encode($registro["Grupo"])."</td>";
-                                echo "<td>".utf8_encode($registro["Subgrupo"])."</td>";
-                                echo "</tr>";
-                            }
-                            
-                            echo "</tbody>";
-                            echo "</table>";
-                            echo "</div>";
-                        ?>
-                    </div>
-                </div>
         	</div><!--/span-->
 
 			<!-- Barra lateral o sidebar -->
