@@ -1,24 +1,3 @@
-<?php
-/*~ Archivo mayor.php
-.---------------------------------------------------------------------------.
-|    Software: CAS - Computerized Accountancy System                        |
-|     Versión: 1.0                                                          |
-|   Lenguajes: PHP, HTML, CSS3 y Javascript                                 |
-| ------------------------------------------------------------------------- |
-|   Autores: Ricardo Vigil (alexcontreras@outlook.com)                      |
-|          : Vanessa Campos                                                 |
-|          : Ingrid Aguilar                                                 |
-|          : Jhosseline Rodriguez                                           |
-| Copyright (C) 2013, FIA-UES. Todos los derechos reservados.               |
-| ------------------------------------------------------------------------- |
-|                                                                           |
-| Este archivo es parte del sistema de contabilidad C.A.S para la cátedra   |
-| de Sistemas Contables de la Facultad de Ingeniería y Arquitectura de la   |
-| Universidad de El Salvador.                                               |
-|                                                                           |
-'---------------------------------------------------------------------------'
-*/
-?>
 <?php 
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
@@ -43,6 +22,7 @@
 	<!-- Barra de navegación -->
 	<?php include("nav.php"); ?>
 	<?php include("funciones.php"); ?>
+    <!--Actualiza los libros despeus de haber iingresado una nueva transaccion-->
     <?php 
     if(!isset($conexion)){ include("conexion.php");}
     $sql = "SELECT * FROM cuentas";
@@ -88,8 +68,10 @@
                                 while($registro = $ejecutar_consulta->fetch_assoc()){
                                     actualizarCuentas($conexion, $registro["cuentas"]);
                                 }
+                                /*consulata para obtenr totales segun subgrupo*/
                                 $consulta = "SELECT DISTINCT(c.codigo_cuenta),c.subgrupo,SUM((c.saldo_debe)) sumdebe,SUM((c.saldo_haber)) sumhaber FROM cuentas c,subgrupos s WHERE c.subgrupo=s.codigo_subgrupo GROUP by c.subgrupo";
                                 $consulta = $conexion->query($consulta);
+                                            /*Suma segun subgurupos de cuentas*/
                                             while ($subg = $consulta->fetch_assoc()) {
                                                 $sql = "SELECT * FROM cuentas where subgrupo='".$subg["subgrupo"]."' ";
                                                 $ejecutar_consulta = $conexion->query($sql);
@@ -99,35 +81,29 @@
                                                     echo "<td>".$regs["codigo_cuenta"]." - ".utf8_encode($regs["nombre_cuenta"])."</td>";
                                                     echo "<td align='right'>".number_format($regs["saldo_debe"],2)."</td>";
                                                     echo "<td align='right'>".number_format($regs["saldo_haber"],2)."</td>";
-
                                                     echo "</tr>";
                                                     }
-                                                }
-                                                
-                                                
-                                                    echo "<tr>";
-                                                    echo "<td class='text-right'><strong>Sumas Totales:</strong></td>";
-                                                    echo "<td align='right'>".number_format($subg["sumdebe"],2)."</td>";
-                                                    echo "<td align='right'>".number_format($subg["sumhaber"],2)."</td>";
-                                                    
-                                                    echo "</tr>";
-                                            }
-                                            $sql = "SELECT SUM(saldo_debe) sumadebe, SUM(saldo_haber) sumahaber FROM cuentas";
+                                                }                                               
+                                                echo "<tr>";
+                                                echo "<td class='text-right'><strong>Sumas Totales:</strong></td>";
+                                                echo "<td align='right'>".number_format($subg["sumdebe"],2)."</td>";
+                                                echo "<td align='right'>".number_format($subg["sumhaber"],2)."</td>";
+                                                echo "</tr>";
+                                            }   
+                                    /*Total de todas las cuentas*/ 
+                                    $sql = "SELECT SUM(saldo_debe) sumadebe, SUM(saldo_haber) sumahaber FROM cuentas";
                                     $ejecutar = $conexion->query($sql);
                                     echo "<tr>";
                                     while($reg = $ejecutar->fetch_assoc()){
-
                                         if($reg["sumadebe"]!=$reg["sumahaber"]){
                                             echo "<td class='danger'><strong>Totales:</strong> </td>";
                                             echo "<td class='text-right danger'><strong>".number_format($reg["sumadebe"],2)."</strong></td>";
                                             echo "<td class='text-right danger'><strong>".number_format($reg["sumahaber"],2)."</strong></td>";
-
                                         } else {
                                             echo "<td><strong>Totales:</strong> </td>";
                                             echo "<td class='text-right'><strong>".number_format($reg["sumadebe"],2)."</strong></td>";
                                             echo "<td class='text-right'><strong>".number_format($reg["sumahaber"],2)."</strong></td>";
                                         }
-                                        
                                     }
                                     echo "</tr>";
                             ?>
