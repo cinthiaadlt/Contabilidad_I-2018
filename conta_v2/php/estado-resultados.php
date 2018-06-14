@@ -1,24 +1,74 @@
 <?php
-/*~ Archivo estado-resultados.php
-.---------------------------------------------------------------------------.
-|    Software: CAS - Computerized Accountancy System                        |
-|     Versión: 1.0                                                          |
-|   Lenguajes: PHP, HTML, CSS3 y Javascript                                 |
-| ------------------------------------------------------------------------- |
-|   Autores: Ricardo Vigil (alexcontreras@outlook.com)                      |
-|          : Vanessa Campos                                                 |
-|          : Ingrid Aguilar                                                 |
-|          : Jhosseline Rodriguez                                           |
-| Copyright (C) 2013, FIA-UES. Todos los derechos reservados.               |
-| ------------------------------------------------------------------------- |
-|                                                                           |
-| Este archivo es parte del sistema de contabilidad C.A.S para la cátedra   |
-| de Sistemas Contables de la Facultad de Ingeniería y Arquitectura de la   |
-| Universidad de El Salvador.                                               |
-|                                                                           |
-'---------------------------------------------------------------------------'
-*/
+if(!isset($conexion)){ include("conexion.php");}
+if(isset($_POST['create_pdf'])){
+  include("funciones.php"); 
+  include('../tcpdf/tcpdf.php');
+    
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('Contabilidad vicaria');
+    $pdf->SetTitle($_POST['reporte_name']);
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->SetMargins(20, 20, 20, false);
+    $pdf->SetAutoPageBreak(true, 20);
+    $pdf->SetFont('Helvetica', '', 10);
+    $pdf->addPage();
+    $content = '';
+    $content .= '
+<div class="container">
+	<div class="row">
+		<div class="col-lg-12">
+		<table class="table " border="1" cellpadding="5">
+			<thead>
+				<tr>
+					<th colspan="4">
+					<h2 class="text-center" align="center">Estado de Resultados</h2>
+						<p align="center">';
+							$fecha_ac = actual_date();	
+							 $content .= '
+							 '.$fecha_ac.'
+						</p>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+			
+			';
+ 				$sql = "SELECT * FROM cuentas WHERE codigo_cuenta LIKE '4%'";
+                $ejecutar = $conexion->query($sql);
+                while($acts = $ejecutar->fetch_assoc()){
+                    $content .= '
+                    <tr>
+                    <td colspan="3" >'.$acts['codigo_cuenta'].'.'.utf8_encode($acts['nombre_cuenta']).'</td>
+                    <td align="center">'.number_format($acts['saldo_debe']-$acts['saldo_haber'],2).'</td>
+                    </tr> ';
+                }
+                
+                $consulta = "SELECT SUM((saldo_debe-saldo_haber)) total FROM cuentas WHERE codigo_cuenta LIKE '4%'";
+                $ejecutar_consulta = $conexion->query($consulta);
+                if($ejecutar_consulta->num_rows > 0){
+                    while ($regs = $ejecutar_consulta->fetch_assoc()) {
+                        $content .= '
+                        <tr>
+                        <td class="text-left"  colspan="3" ><strong>Total</strong></td>
+                        <td align="center">'.number_format($regs['total'],2).'</td>
+                        </tr>';
+                    }
+                }
+$content .= '
+		</tbody>	
+		</table>
+		</div>
+	</div>
+</div>
+';
+  $pdf->writeHTMLCell(0, 0, '', '', $content, 0, 1, 0, true, '', true);
+    ob_end_clean();
+    $pdf->output('Reporte.pdf', 'I');
+}
 ?>
+   
 <?php 
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
@@ -61,30 +111,9 @@
 										<th colspan="4">
 										<h2 class="text-center">Estado de Resultados</h2>
 											<p align="center">
-										<!--
-											<h2 class="text-center">Vinos Nonualcos y Cia. S.A</h2>
-											<p align="center">
-												<strong>Estado de Resultados</strong>
-											</p>
-											-->
-											<p align="center">
-												<script>
-													var month=new Array();
-													month[0]="Enero";
-													month[1]="Febrero";
-													month[2]="Marzo";
-													month[3]="Abril";
-													month[4]="Mayo";
-													month[5]="Junio";
-													month[6]="Julio";
-													month[7]="Agosto";
-													month[8]="Septiembre";
-													month[9]="Octubre";
-													month[10]="Noviembre";
-													month[11]="Diciembre";
-													var fecha = new Date();
-													document.write(month[fecha.getMonth()] + " de " + fecha.getFullYear());
-											</script>
+												<?php 
+												include("funciones.php");
+												 echo actual_date (); ?>
 											</p>
 										</th>
 									</tr>
@@ -136,6 +165,12 @@
 
 					</div>
 				</div>
+				<div class="col-md-12">
+                <form method="post" ><!-- action="pdf_balance-comp.php"-->
+                    <input type="hidden" name="reporte_name" value="<?php echo $h1; ?>">
+                    <input type="submit" name="create_pdf" class="btn btn-danger pull-right" value="Generar PDF">
+                </form>
+              </div>
 			</div><!--/span-->
 
 			<!-- Barra lateral o sidebar -->
