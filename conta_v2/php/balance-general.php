@@ -1,24 +1,179 @@
 <?php
-/*~ Archivo balance-general.php
-.---------------------------------------------------------------------------.
-|    Software: CAS - Computerized Accountancy System                        |
-|     Versión: 1.0                                                          |
-|   Lenguajes: PHP, HTML, CSS3 y Javascript                                 |
-| ------------------------------------------------------------------------- |
-|   Autores: Ricardo Vigil (alexcontreras@outlook.com)                      |
-|          : Vanessa Campos                                                 |
-|          : Ingrid Aguilar                                                 |
-|          : Jhosseline Rodriguez                                           |
-| Copyright (C) 2013, FIA-UES. Todos los derechos reservados.               |
-| ------------------------------------------------------------------------- |
-|                                                                           |
-| Este archivo es parte del sistema de contabilidad C.A.S para la cátedra   |
-| de Sistemas Contables de la Facultad de Ingeniería y Arquitectura de la   |
-| Universidad de El Salvador.                                               |
-|                                                                           |
-'---------------------------------------------------------------------------'
-*/
+if(!isset($conexion)){ include("conexion.php");}
+if(isset($_POST['create_pdf'])){
+  include("funciones.php"); 
+  include('../tcpdf/tcpdf.php');
+    
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('Contabilidad vicaria');
+    $pdf->SetTitle($_POST['reporte_name']);
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->SetMargins(20, 20, 20, false);
+    $pdf->SetAutoPageBreak(true, 20);
+    $pdf->SetFont('Helvetica', '', 10);
+    $pdf->addPage();
+    $content = '';
+    $content .= '';
+$content .= '
+
+	<div class="container">
+	<div class="row">
+		<div class="col-lg-12">
+		<table border="0.2">
+				<tr>
+					<td colspan="4">
+					<h2 class="text-center" align="center">Balance General</h2>
+						<p align="center">';
+						 $fechaactual = getdate();
+			            print_r($fechaactual);
+			            $content .= '
+			            Hasta la fecha: '.$fechaactual[mday].' de '.$fechaactual[month].' de '.$fechaactual[year].' 
+						</p>
+					</td>
+				</tr>
+		</table>		
+				<div class="row">
+					<div class="col-lg-3">
+						<table class="table" border="0.5">
+							<thead>
+							<tr>
+							
+								<th colspan="2" align="center">
+								<b><FONT SIZE="12" face="verdana" color="blue">ACTIVOS
+								</font>	</b>
+								</th>
+							
+							</tr>
+							</thead>
+						';	
+							
+							$sql = "SELECT * FROM cuentas WHERE codigo_cuenta LIKE '1%'";
+							$ejecutar = $conexion->query($sql);
+							while($acts = $ejecutar->fetch_assoc()){
+								$content .= '
+								<tr colspan="2">
+								<td >'.$acts["codigo_cuenta"].'.  '.utf8_encode($acts['nombre_cuenta']).'</td>
+								<td class="text-center" align="center">'.number_format($acts['saldo_debe']-$acts['saldo_haber'],2).'</td>
+								</tr>';
+							}
+							$consulta = "SELECT SUM((saldo_debe-saldo_haber)) total FROM cuentas WHERE codigo_cuenta LIKE '1%'";
+							$ejecutar_consulta = $conexion->query($consulta);
+							if($ejecutar_consulta->num_rows > 0){
+								while ($regs = $ejecutar_consulta->fetch_assoc()) {
+									$content .= '
+									<tr>
+									<td class="text-center"><font color = "blue"><strong>TOTAL ACTIVOS:</strong></font></td>
+									<td align="center"><font color = "blue"> '.number_format($regs["total"],2).'</font></td>
+									</tr>';
+								}
+							}
+						$content .= '	
+						</table>
+					</div>
+					<div class="col-lg-3">
+						<table class="table " border="0.5">
+						<thead>
+							<tr>
+								<th colspan="2" align="center">
+								<b><FONT SIZE="12" face="verdana" color="green">PASIVOS
+								</font>	</b>
+								</th>
+							</tr>	
+						</thead>	
+							';
+							
+							$sql = "SELECT * FROM cuentas WHERE codigo_cuenta LIKE '2%'";
+							$ejecutar = $conexion->query($sql);
+							while($acts = $ejecutar->fetch_assoc()){
+								$content .= '	
+								<tr>
+								<td>'.$acts['codigo_cuenta'].'.  '.utf8_encode($acts['nombre_cuenta']).'</td>
+								<td class="text-center" align="center">'.number_format($acts['saldo_debe']-$acts['saldo_haber'],2).'</td>
+								</tr>
+								';
+							}
+							$consulta = "SELECT SUM((saldo_debe-saldo_haber)) total FROM cuentas WHERE codigo_cuenta LIKE '2%'";
+							$ejecutar_consulta = $conexion->query($consulta);
+							if($ejecutar_consulta->num_rows > 0){
+								while ($regs = $ejecutar_consulta->fetch_assoc()) {
+									$total_pasivos = $regs["total"];
+									$content .= '	
+									<tr>
+									<td class="text-center"><font color = "green"><strong>TOTAL PASIVOS:</strong></font></td>
+									<td align="center"><font color = " green">'.number_format($regs['total'],2).'</font></td>
+									</tr>
+									';
+								}
+							}
+							$content .= '
+						</table>
+					</div>
+					<div class="col-lg-3">
+						<table class="table" border="0.5">
+							<thead>
+							<tr>
+								<th colspan="2" align="center">
+								<b><FONT SIZE="12" face="verdana" color="orange">CAPITAL;
+								</font>	</b>
+								</th>
+							</tr>	
+							</thead>	
+							';
+							
+							$sql = "SELECT * FROM cuentas WHERE codigo_cuenta LIKE '3%'";
+							$ejecutar = $conexion->query($sql);
+							while($acts = $ejecutar->fetch_assoc()){
+								$content .= '
+								<tr>";
+								<td>'.$acts['codigo_cuenta'].'.  '.utf8_encode($acts['nombre_cuenta']).'</td>
+								<td> </td>
+								</tr>';
+							}
+							$consulta = "SELECT SUM((saldo_debe-saldo_haber)) total FROM cuentas WHERE codigo_cuenta LIKE '3%'";
+							$ejecutar_consulta = $conexion->query($consulta);
+							if($ejecutar_consulta->num_rows > 0){
+								while ($regs = $ejecutar_consulta->fetch_assoc()) {
+									$total_capital = $regs["total"];
+									$content .= '
+									<tr>
+									<td class="text-center"><font color = "orange"><strong>TOTAL CAPITAL:</strong></font></td>
+									<td align="center"><font color = "orange">'.number_format($regs['total'],2).'</font></td>
+									</tr>';
+								}
+							}
+							
+						$content .= '	
+						</table>
+					</div>
+					<div class="col-lg-3">
+						<table class="table" border ="0.5">
+							
+									<tr>
+									<td class="text-right"><strong>Total Pasivos + Capital:</strong></td>
+									<td align="center">'.number_format($total_pasivos+$total_capital,2).'</td>
+									</tr>
+																				
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+				
+	</div>
+	</div>
+	
+    ';
+				
+							
+						
+    $pdf->writeHTMLCell(0, 0, '', '', $content, 0, 1, 0, true, '', true);
+    ob_end_clean();
+    $pdf->output('Reporte.pdf', 'I');
+}
 ?>
+   
 <?php 
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
@@ -199,7 +354,6 @@
 											<div class="col-lg-12">
 												<table class="table">
 													<?php
-
 															echo "<tr>";
 															echo "<td class='text-right'><strong>Total Pasivos + Capital:</strong></td>";
 															echo "<td align='right'>".number_format($total_pasivos+$total_capital,2)."</td>";
@@ -217,6 +371,12 @@
 
 					</div>
 				</div>
+				 <div class="col-md-12">
+                <form method="post">
+                    <input type="hidden" name="reporte_name" value="<?php echo $h1; ?>">
+                    <input type="submit" name="create_pdf" class="btn btn-danger pull-right" value="Generar PDF">
+                </form>
+              </div>
 			</div><!--/span-->
 
 			<!-- Barra lateral o sidebar -->
