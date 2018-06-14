@@ -1,3 +1,62 @@
+<?php
+if(!isset($conexion)){ include("conexion.php");}
+if(isset($_POST['create_pdf'])){
+  include("funciones.php"); 
+  include('../tcpdf/tcpdf.php');
+    
+    $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
+    $pdf->SetCreator(PDF_CREATOR);
+    $pdf->SetAuthor('Contabilidad vicaria');
+    $pdf->SetTitle($_POST['reporte_name']);
+    $pdf->setPrintHeader(false);
+    $pdf->setPrintFooter(false);
+    $pdf->SetMargins(20, 20, 20, false);
+    $pdf->SetAutoPageBreak(true, 20);
+    $pdf->SetFont('Helvetica', '', 10);
+    $pdf->addPage();
+    $content = '';
+    $content .= '
+    <div class="container">
+<table class="table table-bordered table-hover" align="center">
+<thead>
+    <tr>
+        <th colspan="6">
+            <h2 class="text-center" align="center">Balance de Comprobación</h2>
+            <p align="center">';
+            $fechaactual = getdate();
+            print_r($fechaactual);
+            $content .= '
+            Hasta la fecha: '.$fechaactual[mday].' de '.$fechaactual[month].' de '.$fechaactual[year].'
+            </p>
+            <br>
+            <br>
+        </th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <th>Cuenta</th>
+        <th>Debe</th>
+        <th>Haber</th>
+        <th >Saldo debe</th>
+        <th >Saldo haber</th>
+    </tr>';
+
+
+
+ $content.='  
+ </tbody> 
+ </table>
+ </div>
+'; 
+
+  
+
+    $pdf->writeHTMLCell(0, 0, '', '', $content, 0, 1, 0, true, '', true);
+    ob_end_clean();
+    $pdf->output('Reporte.pdf', 'I');
+}
+?>
 <?php 
 	include("sesion.php");
 	if(!$_COOKIE["sesion"]){
@@ -37,29 +96,10 @@
 									<th colspan="6">
 									<!--Nombre de la entidad -->
 										<h2 class="text-center">Balance de Comprobación</h2>
-										<!--
 										<p align="center">
-											<strong>Balance de Comprobación</strong>
-										</p>
-										-->
-										<p align="center">
-											<script>
-												var month=new Array();
-												month[0]="Enero";
-												month[1]="Febrero";
-												month[2]="Marzo";
-												month[3]="Abril";
-												month[4]="Mayo";
-												month[5]="Junio";
-												month[6]="Julio";
-												month[7]="Agosto";
-												month[8]="Septiembre";
-												month[9]="Octubre";
-												month[10]="Noviembre";
-												month[11]="Diciembre";
-												var fecha = new Date();
-												document.write("Al " + fecha.getDate() + " de " + month[fecha.getMonth()] + " de " + fecha.getFullYear());
-											</script>
+											<?php 
+												include("funciones.php");
+												 echo actual_date (); ?>
 										</p>
 									</th>
 								</tr>
@@ -114,7 +154,7 @@
                                                     $acreedor =$acreedor+ ($regs["saldo-haber"]-$regs["saldo_debe"]);
                                                     echo "<td class='text-right'>".number_format($regs["saldo_debe"],2)."</td>";
                                                     echo "<td class='text-right'>".number_format($regs["saldo_haber"],2)."</td>";
-                                                    echo "<td align='right'>$ ".number_format($deudor, 2)."</td>";
+                                                    echo "<td align='right'>$".number_format($deudor, 2)."</td>";
                                             		echo "<td align='right'>$ ".number_format($acreedor, 2)."</td>";
                                                 }
                                                 elseif ($regs["saldo_debe"]>$regs["saldo_haber"]) {
@@ -188,6 +228,13 @@
         				
         			</div>
         		</div>
+        		<div class="col-md-12">
+                <form method="post" ><!-- action="pdf_balance-comp.php"-->
+                    <input type="hidden" name="reporte_name" value="<?php echo $h1; ?>">
+                    <input type="submit" name="create_pdf" class="btn btn-danger pull-right" value="Generar PDF">
+                </form>
+              </div>
+
         	</div><!--/span-->
 
 			<!-- Barra lateral o sidebar -->
@@ -205,3 +252,4 @@
 	<script src="../js/bootstrap.min.js"></script>
 </body>
 </html>
+

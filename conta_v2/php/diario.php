@@ -1,16 +1,13 @@
 <?php
-/*  prueba */
 if(!isset($conexion)){ include("conexion.php");}
 if(isset($_POST['create_pdf'])){
    include("funciones.php"); 
   include('../tcpdf/tcpdf.php');
     
     $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-
     $pdf->SetCreator(PDF_CREATOR);
     $pdf->SetAuthor('Contabilidad vicaria');
     $pdf->SetTitle($_POST['reporte_name']);
-
     $pdf->setPrintHeader(false);
     $pdf->setPrintFooter(false);
     $pdf->SetMargins(20, 20, 20, false);
@@ -21,21 +18,18 @@ if(isset($_POST['create_pdf'])){
      $content .= '
       <div class="row">
                 <div class="col-lg-12">';
-
         $sql = "SELECT * FROM registro";
         $ejecutar_consulta = $conexion->query($sql);
         if($ejecutar_consulta->num_rows!=0){
             $sql = "SELECT DISTINCTROW(transaccion) AS transacciones FROM registro";
             $ejecutar_consulta = $conexion->query($sql);
                 while($registro = $ejecutar_consulta->fetch_assoc()){
-                    asientos_PDF($conexion, $registro["transacciones"]);
+                    PDF_asientos($conexion, $registro["transacciones"]);
                 }
         $sql = "SELECT sum(debe) as sumadebe, sum(haber) as sumahaber from registro";
         $ejecutar_consulta = $conexion->query($sql);
-
                 while($registro = $ejecutar_consulta->fetch_assoc()){
                     $dif = $registro["sumadebe"]-$registro["sumahaber"];
-
                 $content.=' 
                 </tr>
                 <div>
@@ -64,7 +58,6 @@ if(isset($_POST['create_pdf'])){
                     </strong>
                     </td>';
                 } else{
-
                     $content.='<td width="90"></td>';
                 }
                 $content.='  
@@ -81,12 +74,10 @@ if(isset($_POST['create_pdf'])){
              </div>
              ';
         }
-
          $content.='           
                 </div>
             </div> 
             ';
-
     $pdf->writeHTMLCell(0, 0, '', '', $content, 0, 1, 0, true, '', true);
     ob_end_clean();
     $pdf->output('Reporte.pdf', 'I');
@@ -117,7 +108,6 @@ if(isset($_POST['create_pdf'])){
 <body>
 	<!-- Barra de navegación -->
 	<?php include("nav.php"); ?>
-	<?php ?>
 
 	<!-- Contenido de la página -->
 	<div class="container" id="contenido">

@@ -26,8 +26,7 @@ function asientos($conexion, $transaccion) {
 	$sql = "SELECT id, DATE_FORMAT(fecha,'%d-%m-%Y')as fecha, cuenta, concepto, debe, haber FROM registro WHERE transaccion = $transaccion ORDER BY fecha ASC" ;
 	$ex_query = $conexion->query($sql);
 	if($ex_query->num_rows==0){
-		return 0;
-	}
+		return 0;}
 
 	echo "<div>";
 	echo "<h4><span class='label label-primary'>Ficha N°: ".$transaccion."</span>&nbsp;<small><a href='borrar-asiento.php?transaccion=".$transaccion."'>(Borrar ficha)</a></small></h4>";
@@ -79,6 +78,7 @@ function asientos($conexion, $transaccion) {
 		echo "</tr>";
 
 		}
+
 		echo "</tbody>";
 		echo "</table>";
 		echo "</div>";
@@ -230,82 +230,93 @@ function asientos($conexion, $transaccion) {
 		}
 	}
 
-	function asientos_PDF($conexion, $transaccion) {
+	 function PDF_asientos($conexion,$transaccion){
+            $sql_1 = "SELECT id, DATE_FORMAT(fecha,'%d-%m-%Y')as fecha, cuenta, concepto, debe, haber FROM registro WHERE transaccion = $transaccion ORDER BY fecha ASC";
+                $ex_query = $conexion->query($sql_1);
+                if($ex_query->num_rows==0){
+                    return 0;
+                }
+                  $content .=' 
+                    <div>
+                    <h4>
+                    <span class="label label-primary">
+                        Ficha N°: '.$transaccion.'
+                    </span> &nbsp;
+                    </h4>
+                    <br/>
+                    <div>
+                    <table class="table table-bordered table-condensed table-hover">
+                    <thead>
+                    <tr>
+                    <th width="50" class="text-center">ID</th>
+                    <th width="110" class="text-center">Fecha</th>
+                    <th width="80" class="text-center">Cuenta</th>
+                    <th width="500" class="text-center">Descripción</th>
+                    <th width="100" class="text-center">Debe</th>
+                    <th width="100" class="text-center">Haber</th>
+                    <th width="100" class="text-center">Diferencia</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    ';
+                while ($regs = $ex_query->fetch_assoc()) {
+                    $id=$regs["id"];
+                $content .=' 
+                    <tr>
+                    <td>'.$regs['id'].'</td>";
+                    <td>'.$regs['fecha'].'</td>
+                    <td>'.$regs['cuenta'].'</td>
+                    <td>'.$regs['concepto'].'</td>
+                    <td align="right">'.$regs['debe'].'</td>
+                    <td align="right">'.$regs['haber'].'</td>
+                    <td></td>
+                    </tr>
+                    ';
+                }
+                
+                $sql_2 = "SELECT SUM(debe) as sumadebe, SUM(haber) AS sumahaber FROM registro WHERE transaccion=$transaccion";
+                $ex_query = $conexion->query($sql_2);
+                while($regs = $ex_query->fetch_assoc()){
+                    $dif = $regs["sumadebe"]-$regs["sumahaber"];
+                    $content .=' 
+                    <tr>
+                    <td colspan="4" class="text-right">SUMAS</td>
+                    <td align="right">$ '.number_format($regs['sumadebe'], 2).'</td>
+                    <td align="right">$ '.number_format($regs['sumahaber'], 2).'</td>
+                    ';
+                    if($dif!=0){
+                        $content .='
+                        <td class="danger "align="right"><strong>$ '.number_format($dif, 2).'</strong></td>
+                        ';
+                    } else{
+                        $content .='
+                        <td></td>
+                        ';
+                    }
 
-	$sql = "SELECT id, DATE_FORMAT(fecha,'%d-%m-%Y')as fecha, cuenta, concepto, debe, haber FROM registro WHERE transaccion = $transaccion ORDER BY fecha ASC" ;
-	$ex_query = $conexion->query($sql);
-	if($ex_query->num_rows==0){
-		return 0;
-	}
-	  $content .=' 
-		<div>
-		<h4>
-		<span class="label label-primary">
-			Ficha N°: '.$transaccion.'
-		</span> &nbsp;
-		</h4>
-		<br/>
-		<div>
-		<table class="table table-bordered table-condensed table-hover">
-		<thead>
-		<tr>
-		<th width="50" class="text-center">ID</th>
-		<th width="110" class="text-center">Fecha</th>
-		<th width="80" class="text-center">Cuenta</th>
-		<th width="500" class="text-center">Descripción</th>
-		<th width="100" class="text-center">Debe</th>
-		<th width="100" class="text-center">Haber</th>
-		<th width="100" class="text-center">Diferencia</th>
-		</tr>
-		</thead>
-		<tbody>
-		';
-	while ($regs = $ex_query->fetch_assoc()) {
-		$id=$regs["id"];
-	$content .=' 
-		<tr>
-		<td>'.$regs["id"].'</td>";
-		<td>'.$regs['fecha'].'</td>
-		<td>'.$regs['cuenta'].'</td>
-		<td>utf8_encode('.$regs['concepto'].')</td>
-		<td align="right">'.$regs['debe'].'</td>
-		<td align="right">'.$regs['haber'].'</td>
-		<td></td>
-		</tr>
-		';
-	}
-	
-	$sql = "SELECT SUM(debe) as sumadebe, SUM(haber) AS sumahaber FROM registro WHERE transaccion=$transaccion";
-	$ex_query = $conexion->query($sql);
-	while($regs = $ex_query->fetch_assoc()){
-		$dif = $regs["sumadebe"]-$regs["sumahaber"];
-		$content .=' 
-		<tr>
-		<td colspan="4" class="text-right">SUMAS</td>
-		<td align="right">$ '.number_format($regs['sumadebe'], 2).'</td>
-		<td align="right">$ '.number_format($regs['sumahaber'], 2).'</td>
-		';
-		if($dif!=0){
-			$content .='
-			<td class="danger "align="right"><strong>$ '.number_format($dif, 2).'</strong></td>
-			';
-		} else{
-			$content .='
-			<td></td>
-			';
-		}
+                    $content .='</tr>';
 
-		$content .='</tr>';
+                    }
+                    $content .='
+                    </tbody>
+                    </table>
+                    </div>
+                    </div>  
+                    ';
+                    return 1;
 
-		}
-		$content .='
-		</tbody>
-		</table>
-		</div>
-		</div>	
-		';
+            }
 
-		return 1;
-	}
-
+function actual_date ()  
+{  
+    $week_days = array ("Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado");  
+    $months = array ("", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");  
+    $year_now = date ("Y");  
+    $month_now = date ("n");  
+    $day_now = date ("j");  
+    $week_day_now = date ("w");  
+    $date = $day_now . " de " . $months[$month_now] . " de " . $year_now;   
+    return $date;    
+}  
+          
 ?>
