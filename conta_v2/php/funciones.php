@@ -21,14 +21,11 @@
 ?>
 
 <?php 
-
 function asientos($conexion, $transaccion) {
 	$sql = "SELECT id, DATE_FORMAT(fecha,'%d-%m-%Y')as fecha, cuenta, concepto, debe, haber FROM registro WHERE transaccion = $transaccion ORDER BY fecha ASC" ;
 	$ex_query = $conexion->query($sql);
 	if($ex_query->num_rows==0){
-		return 0;
-	}
-
+		return 0;}
 	echo "<div>";
 	echo "<h4><span class='label label-primary'>Ficha N°: ".$transaccion."</span>&nbsp;<small><a href='borrar-asiento.php?transaccion=".$transaccion."'>(Borrar ficha)</a></small></h4>";
 	echo "<br />";
@@ -47,7 +44,6 @@ function asientos($conexion, $transaccion) {
 	echo "</thead>";
 	echo "<tbody>";
 	while ($regs = $ex_query->fetch_assoc()) {
-
 		$id=$regs["id"];
 		echo "<tr>";
 		echo "<td align='center'><a class='label label-success' href='ver-asiento.php?id=$id'>".$regs["id"]."</td>";
@@ -58,8 +54,6 @@ function asientos($conexion, $transaccion) {
 		echo "<td align='right'>".$regs["haber"]."</td>";
 		echo "<td></td>";
 		echo "</tr>";
-
-
 	}
 	
 	$sql = "SELECT SUM(debe) as sumadebe, SUM(haber) AS sumahaber FROM registro WHERE transaccion=$transaccion";
@@ -75,9 +69,7 @@ function asientos($conexion, $transaccion) {
 		} else{
 			echo "<td></td>";
 		}
-
 		echo "</tr>";
-
 		}
 		echo "</tbody>";
 		echo "</table>";
@@ -85,7 +77,6 @@ function asientos($conexion, $transaccion) {
 		echo "</div>";	
 		return 1;
 	}
-
 	function actualizarCuentas($conexion, $cuenta){
 		$c = explode('.', $cuenta);
 		if(isset($c[4])){
@@ -95,7 +86,6 @@ function asientos($conexion, $transaccion) {
 			while($regs = $ejecutar_consulta->fetch_assoc()){
 				$saldo_debe = $regs["sumadebe"];
 				$saldo_haber = $regs["sumahaber"];
-
 				$update = "UPDATE subcuentas SET saldo_debe=$saldo_debe, saldo_haber=$saldo_haber WHERE codigo_subcuenta='$cuenta'";
 				$ex_query = $conexion->query($update);
 				if($ex_query){
@@ -103,7 +93,6 @@ function asientos($conexion, $transaccion) {
 				}
 			}
 		}
-
 		if(!isset($c[4])){
 			//$sql = "SELECT SUM(debe) sumadebe, SUM(haber) sumahaber FROM registro WHERE cuenta='$cuenta'";
 			$sql = "SELECT IFNULL((SELECT SUM(debe) FROM registro WHERE cuenta='$cuenta'),0) sumadebe, IFNULL((SELECT SUM(haber) FROM registro WHERE cuenta='$cuenta'),0 ) sumahaber";
@@ -112,7 +101,6 @@ function asientos($conexion, $transaccion) {
 				while($regs = $ejecutar_consulta->fetch_assoc()){
 					$saldo_debe = $regs["sumadebe"];
 					$saldo_haber = $regs["sumahaber"];
-
 					$update = "UPDATE cuentas SET saldo_debe=$saldo_debe, saldo_haber=$saldo_haber WHERE codigo_cuenta='$cuenta'";
 					$ex_query = $conexion->query($update);
 					if($ex_query){
@@ -122,7 +110,6 @@ function asientos($conexion, $transaccion) {
 			}
 		}
 	}
-
 	function generarMayor($conexion){
 		$sql = "SELECT DISTINCTROW(cuenta) cuentas FROM registro";
 		$ejecutar_consulta = $conexion->query($sql);
@@ -143,7 +130,6 @@ function asientos($conexion, $transaccion) {
 						// echo "OK. <br>";
 					}
 				}
-
 			} else {
 				// Es cuenta
 				$info = "SELECT nombre_cuenta, saldo_debe, saldo_haber FROM cuentas WHERE codigo_cuenta='$cuenta'";
@@ -159,10 +145,8 @@ function asientos($conexion, $transaccion) {
 					}
 				}
 			}
-
 		}
 	}
-
 	function saldosCuentas($conexion, $cuentas){
 		$sql = "SELECT IFNULL((SELECT SUM(saldo_debe) FROM subcuentas WHERE cuenta = '$cuentas'),0) sumadebe, IFNULL((SELECT SUM(saldo_haber) FROM subcuentas WHERE cuenta='$cuentas'),0) sumahaber;";
 		$ejecutar_consulta = $conexion->query($sql);
@@ -179,7 +163,6 @@ function asientos($conexion, $transaccion) {
 			}
 		}
 	}
-
 	function calculaPlanilla($conexion, $datos){
 		$codigo = $datos["codigo_empleado_txt"];
 		$primer_nombre = $datos["primernombre_txt"];
@@ -214,7 +197,6 @@ function asientos($conexion, $transaccion) {
 		$salario_mensual = $salario+$isss_t+$afp_t+$vc+$ag;
 		$amp = $isss+$afp;
 		$psp = $salario_mensual+$amp;
-
 		$sql = "INSERT INTO `sic115`.`empleados` 
 		(`codigo_empleado`, `primer_nombre`, `segundo_nombre`, `primer_apellido`, `segundo_apellido`, `cargo`,
 		 `salario_mensual_contratado`, `isss_trabajador`, `isss_patrono`, `afp_trabajador`, `afp_patrono`, `salario_diario`, 
@@ -230,82 +212,18 @@ function asientos($conexion, $transaccion) {
 		}
 	}
 
-	function asientos_PDF($conexion, $transaccion) {
 
-	$sql = "SELECT id, DATE_FORMAT(fecha,'%d-%m-%Y')as fecha, cuenta, concepto, debe, haber FROM registro WHERE transaccion = $transaccion ORDER BY fecha ASC" ;
-	$ex_query = $conexion->query($sql);
-	if($ex_query->num_rows==0){
-		return 0;
-	}
-	  $content .=' 
-		<div>
-		<h4>
-		<span class="label label-primary">
-			Ficha N°: '.$transaccion.'
-		</span> &nbsp;
-		</h4>
-		<br/>
-		<div>
-		<table class="table table-bordered table-condensed table-hover">
-		<thead>
-		<tr>
-		<th width="50" class="text-center">ID</th>
-		<th width="110" class="text-center">Fecha</th>
-		<th width="80" class="text-center">Cuenta</th>
-		<th width="500" class="text-center">Descripción</th>
-		<th width="100" class="text-center">Debe</th>
-		<th width="100" class="text-center">Haber</th>
-		<th width="100" class="text-center">Diferencia</th>
-		</tr>
-		</thead>
-		<tbody>
-		';
-	while ($regs = $ex_query->fetch_assoc()) {
-		$id=$regs["id"];
-	$content .=' 
-		<tr>
-		<td>'.$regs["id"].'</td>";
-		<td>'.$regs['fecha'].'</td>
-		<td>'.$regs['cuenta'].'</td>
-		<td>utf8_encode('.$regs['concepto'].')</td>
-		<td align="right">'.$regs['debe'].'</td>
-		<td align="right">'.$regs['haber'].'</td>
-		<td></td>
-		</tr>
-		';
-	}
-	
-	$sql = "SELECT SUM(debe) as sumadebe, SUM(haber) AS sumahaber FROM registro WHERE transaccion=$transaccion";
-	$ex_query = $conexion->query($sql);
-	while($regs = $ex_query->fetch_assoc()){
-		$dif = $regs["sumadebe"]-$regs["sumahaber"];
-		$content .=' 
-		<tr>
-		<td colspan="4" class="text-right">SUMAS</td>
-		<td align="right">$ '.number_format($regs['sumadebe'], 2).'</td>
-		<td align="right">$ '.number_format($regs['sumahaber'], 2).'</td>
-		';
-		if($dif!=0){
-			$content .='
-			<td class="danger "align="right"><strong>$ '.number_format($dif, 2).'</strong></td>
-			';
-		} else{
-			$content .='
-			<td></td>
-			';
-		}
 
-		$content .='</tr>';
-
-		}
-		$content .='
-		</tbody>
-		</table>
-		</div>
-		</div>	
-		';
-
-		return 1;
-	}
-
+			function actual_date ()  
+			{  
+			    $week_days = array ("Domingo", "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado");  
+			    $months = array ("", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre");  
+			    $year_now = date ("Y");  
+			    $month_now = date ("n");  
+			    $day_now = date ("j");  
+			    $week_day_now = date ("w");  
+			    $date = $day_now . " de " . $months[$month_now] . " de " . $year_now;   
+			    return $date;    
+			}  
+          
 ?>
